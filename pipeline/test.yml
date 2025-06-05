@@ -1,0 +1,10 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - cd S3
+      - terraform plan
+      - terraform apply -auto-approve
+      - echo "Waiting 1 minute before destroying resources..."
+      - sleep 60
+      - terraform destroy -auto-approve
