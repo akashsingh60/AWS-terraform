@@ -5,8 +5,9 @@ phases:
       - curl -O https://releases.hashicorp.com/terraform/1.12.1/terraform_1.12.1_linux_amd64.zip
       - echo "Unzipping Terraform"
       - unzip terraform_1.12.1_linux_amd64.zip
-      - echo "Moving Terraform to /usr/local/bin"
-      - sudo mv terraform /usr/local/bin/
+      - echo "Moving Terraform to /usr/local/bin"  
+      # - sudo mv terraform /usr/local/bin/
+      - mv terraform /usr/local/bin/
   build:
     commands:
       - cd S3
