@@ -3,6 +3,7 @@ phases:
   build:
     commands:
       - cd S3
+      - echo "Unzipping Terraform"
       - terraform plan
       - terraform apply -auto-approve
       - echo "Waiting 1 minute before destroying resources..."
