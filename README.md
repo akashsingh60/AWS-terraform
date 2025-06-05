@@ -60,9 +60,6 @@ AWS-terraform/
    terraform apply -var-file="terraform.tfvars"
    ```
 
-## Notes
 
-- The `S3 - Copy` folder and Terraform state files are excluded from version control via `.gitignore`.
-- All sensitive values and environment-specific settings should be managed via `terraform.tfvars` and not hardcoded.
 
 ---
