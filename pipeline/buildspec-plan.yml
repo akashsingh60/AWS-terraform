@@ -1,0 +1,17 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_windows_amd64.zip
+      - tar -xf terraform.zip
+      - move terraform.exe /usr/local/bin/
+      - terraform version
+  build:
+    commands:
+      - cd S3
+      - terraform init
+      - terraform validate
+      - terraform plan -out=tfplan -var-file="terraform.tfvars"
+artifacts:
+  files:
+    - S3/tfplan

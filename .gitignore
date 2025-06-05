@@ -1,4 +1,4 @@
-S3 - Copy/
+S3 - test/
 S3/.terraform/
 S3/.terraform.lock.hcl
 S3/terraform.tfstate
