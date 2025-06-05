@@ -13,6 +13,8 @@ phases:
       - terraform init
       - terraform validate
       - terraform plan -out=tfplan -var-file="terraform.tfvars"
+  apply:
+    commands:
       - terraform apply -auto-approve tfplan
       - echo "Waiting 2 minutes before destroying resources..."
       - sleep 120
