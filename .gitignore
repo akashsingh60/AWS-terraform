@@ -1,0 +1,5 @@
+S3 - Copy/
+S3/.terraform/
+S3/.terraform.lock.hcl
+S3/terraform.tfstate
+S3/terraform.tfstate.backup
