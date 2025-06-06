@@ -1,6 +1,0 @@
-version: 0.2
-phases:
-  build:
-    commands:
-      - cd S3
-      - terraform apply -auto-approve tfplan

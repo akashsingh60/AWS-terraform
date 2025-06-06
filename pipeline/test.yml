@@ -9,13 +9,17 @@ phases:
       - mv terraform /usr/local/bin/
       - terraform -version
       - cd S3
+# terraform initialization:
       - terraform init
       - terraform validate
       - echo "Planning infrastructure"
+      
       - terraform plan -out=tfplan -var-file="terraform.tfvars"
       - echo "Applying infrastructure"
+# provisioning:
       - terraform apply -auto-approve tfplan
       - echo "Sleeping for 60 seconds before destroying..."
       - sleep 120
+#destroying
       - echo "Destroying infrastructure"
       - terraform destroy -auto-approve -var-file="terraform.tfvars"
