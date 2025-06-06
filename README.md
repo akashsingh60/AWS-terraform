@@ -23,6 +23,8 @@ AWS-terraform/
 │   ├── terraform.tfvars
 │   ├── provider.tf
 │   ├── output.tf
+├── pipeline/
+│   └── test.yml
 ├── .gitignore
 └── README.md
 ```
@@ -61,5 +63,3 @@ AWS-terraform/
    ```
 
 
-
----
