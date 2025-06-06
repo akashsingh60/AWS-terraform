@@ -1,11 +1,21 @@
 version: 0.2
+
 phases:
   build:
     commands:
+      - echo "Downloading latest Terraform"
+      - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.12.1/terraform_1.12.1_linux_amd64.zip
+      - unzip terraform.zip
+      - mv terraform /usr/local/bin/
+      - terraform -version
       - cd S3
-      - echo "Unzipping Terraform"
-      - terraform plan
-      - terraform apply -auto-approve
-      - echo "Waiting 1 minute before destroying resources..."
-      - sleep 60
-      - terraform destroy -auto-approve
+      - terraform init
+      - terraform validate
+      - echo "Planning infrastructure"
+      - terraform plan -out=tfplan -var-file="terraform.tfvars"
+      - echo "Applying infrastructure"
+      - terraform apply -auto-approve tfplan
+      - echo "Sleeping for 60 seconds before destroying..."
+      - sleep 120
+      - echo "Destroying infrastructure"
+      - terraform destroy -auto-approve -var-file="terraform.tfvars"
