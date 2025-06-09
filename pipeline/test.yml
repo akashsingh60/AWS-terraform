@@ -20,6 +20,6 @@ phases:
       - terraform apply -auto-approve tfplan
       - echo "Sleeping for 60 seconds before destroying..."
       - sleep 120
-#destroying
-      - echo "Destroying infrastructure"
-      - terraform destroy -auto-approve -var-file="terraform.tfvars"
+# destroying
+#       - echo "Destroying infrastructure"
+#       - terraform destroy -auto-approve -var-file="terraform.tfvars"
