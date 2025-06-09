@@ -11,8 +11,14 @@ phases:
       
       # Create state bucket first
       - cd S3/state-bucket
-      - terraform init
-      - terraform apply -auto-approve
+      - |
+        if aws s3api head-bucket --bucket "testingxperts-terraform-state" 2>/dev/null; then
+          echo "State bucket already exists, skipping creation..."
+        else
+          echo "Creating state bucket..."
+          terraform init
+          terraform apply -auto-approve
+        fi
       
       # Now create main bucket with backend
       - cd ../
