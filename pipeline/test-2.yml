@@ -8,16 +8,19 @@ phases:
       - unzip terraform.zip
       - mv terraform /usr/local/bin/
       - terraform -version
+      - cd S3
       
-      # Create state bucket first
-      - cd S3/state-bucket
+      # Temporarily rename backend.tf
+      - mv backend.tf backend.tf.bak
+      
+      # Initialize and create state bucket first
+      - echo "Creating state bucket..."
       - terraform init
-      - terraform apply -auto-approve
+      - terraform apply -target=aws_s3_bucket.terraform_state -target=aws_s3_bucket_versioning.terraform_state -target=aws_s3_bucket_server_side_encryption_configuration.terraform_state -target=aws_s3_bucket_public_access_block.terraform_state -auto-approve
       
-      # Now create main bucket with backend
-      - cd ../
-      - terraform init -migrate-state
-      - terraform validate
+      # Restore backend.tf and reinitialize with S3 backend
+      - mv backend.tf.bak backend.tf
+      - terraform init -migrate-state -force
       
       # Continue with main bucket creation
       - echo "Checking if main bucket exists..."
@@ -38,10 +41,14 @@ phases:
       - echo "Applying infrastructure"
       - terraform apply -auto-approve tfplan
 
-      # wait for 2 minutes for detsroying
-      - echo "Sleeping for 60 seconds before destroying..."
-      - sleep 120
+      # # wait for 2 minutes for detsroying
+      # - echo "Sleeping for 60 seconds before destroying..."
+      # - sleep 120
 
-      # destroy the infrastructure     
-      - echo "Destroying infrastructure"
-      - terraform destroy -auto-approve -var-file="terraform.tfvars"
+      # # destroy the infrastructure     
+      # - echo "Destroying infrastructure"
+      # - terraform destroy -auto-approve -var-file="terraform.tfvars"
+
+
+
+
