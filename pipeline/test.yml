@@ -44,10 +44,10 @@ phases:
       - echo "Applying infrastructure"
       - terraform apply -auto-approve tfplan
 
-      # wait for 2 minutes for detsroying
-      - echo "Sleeping for 60 seconds before destroying..."
-      - sleep 120
+      # # wait for 2 minutes for detsroying
+      # - echo "Sleeping for 60 seconds before destroying..."
+      # - sleep 120
 
-      # destroy the infrastructure     
-      - echo "Destroying infrastructure"
-      - terraform destroy -auto-approve -var-file="terraform.tfvars"
+      # # destroy the infrastructure     
+      # - echo "Destroying infrastructure"
+      # - terraform destroy -auto-approve -var-file="terraform.tfvars"
