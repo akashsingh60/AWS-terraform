@@ -9,9 +9,8 @@ This task provisions an AWS S3 bucket using Terraform, following best practices 
 - **Versioning:** Enabled, with optional MFA delete
 - **Encryption:** Server-side encryption (AES256)
 - **Public Access Block:** Prevents accidental public exposure
-- **Tags:** For cost allocation, ownership, and environment tracking
 - **Object Lock:** Configurable retention mode and period
-- **Modular Code:** All variables are managed via `variables.tf` and `terraform.tfvars`
+- **Tags:** For cost allocation, ownership, and environment tracking
 
 ## Folder Structure
 

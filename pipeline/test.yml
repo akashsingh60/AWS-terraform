@@ -9,17 +9,41 @@ phases:
       - mv terraform /usr/local/bin/
       - terraform -version
       - cd S3
-# terraform initialization:
+
+      # Initializing Terraform
+      - echo "Initializing Terraform"
       - terraform init
+
+      - echo "Validating Terraform configuration"
       - terraform validate
+
+      # Checking if the S3 bucket name already exists
+      - echo "Checking if S3 bucket name already exists..."
+      - |
+        if aws s3api head-bucket --bucket "$(grep bucket_name terraform.tfvars | cut -d'=' -f2 | tr -d ' \"')" 2>/dev/null; then
+          echo "Bucket already exists. Please choose a different bucket name."
+          exit 1
+          
+          else
+              echo "Bucket does not exist. Proceeding with creation."
+        fi
+
+      # Planning the infrastructure
       - echo "Planning infrastructure"
-      
       - terraform plan -out=tfplan -var-file="terraform.tfvars"
+
+      # Applying the changes 
       - echo "Applying infrastructure"
-# provisioning:
       - terraform apply -auto-approve tfplan
-      - echo "Sleeping for 60 seconds before destroying..."
-      - sleep 120
-# destroying
-#       - echo "Destroying infrastructure"
-#       - terraform destroy -auto-approve -var-file="terraform.tfvars"
+
+      # # wait for 2 minutes for detsroying
+      # - echo "Sleeping for 60 seconds before destroying..."
+      # - sleep 120
+
+      # # destroy the infrastructure     
+      # - echo "Destroying infrastructure"
+      # - terraform destroy -auto-approve -var-file="terraform.tfvars"
+
+
+
+
