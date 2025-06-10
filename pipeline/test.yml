@@ -30,11 +30,11 @@ phases:
       - |
         if aws s3api head-bucket --bucket "$(grep bucket_name terraform.tfvars | cut -d'=' -f2 | tr -d ' \"')" 2>/dev/null; then
           echo "Bucket already exists. Please choose a different bucket name."
-          echo "✨ Pipeline completed successfully - no changes needed"
+          
           exit 1
           
           else
-              echo "Bucket name is available. Proceeding with creation."
+              echo "Bucket name is available in AWS. Proceeding with creation."
         fi
       
       - echo "Planning infrastructure"
