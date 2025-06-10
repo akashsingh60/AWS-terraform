@@ -8,10 +8,26 @@ phases:
       - unzip terraform.zip
       - mv terraform /usr/local/bin/
       - terraform -version
+
+      # Create state bucket first
+      - cd S3/state-bucket
+      - |
+        if aws s3api head-bucket --bucket "testingxperts-terraform-state" 2>/dev/null; then
+          echo "State bucket already exists, skipping creation..."
+        else
+          echo "Creating state bucket..."
+          terraform init
+          terraform fmt
+          terraform validate
+          terraform plan -out=tfplan
+          terraform apply -auto-approve
+        fi
+      
       
       # Initialize with backend configuration
-      - cd S3
+      - cd ../
       - terraform init -migrate-state
+      - terraform fmt
       - terraform validate
 
       # Function to get bucket name from tfvars
