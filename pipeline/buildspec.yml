@@ -1,0 +1,85 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - echo "⬇️ Downloading latest Terraform..."
+      - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.12.1/terraform_1.12.1_linux_amd64.zip
+      - unzip terraform.zip
+      - mv terraform /usr/local/bin/
+      - terraform -version
+
+      # Step 1️⃣: Create the state bucket first (modules/state-bucket)
+      - echo "🔨 Creating/checking the state bucket..."
+      - cd modules/state-bucket
+      - |
+        if aws s3api head-bucket --bucket "testingxperts-terraform-state" 2>/dev/null; then
+          echo "✅ State bucket already exists, skipping creation..."
+        else
+          echo "🆕 Creating state bucket..."
+          terraform init
+          terraform fmt
+          terraform validate
+          terraform plan -out=tfplan
+          terraform apply -auto-approve tfplan
+        fi
+
+      # Step 2️⃣: Go back to root directory for main deployment
+      - cd ../../
+      - terraform init -migrate-state
+      - terraform fmt
+      - terraform validate
+
+      # Step 3️⃣: Parse the bucket name from terraform.tfvars
+      - |
+        BUCKET_NAME=$(grep bucket_name terraform.tfvars | cut -d'=' -f2 | tr -d ' "')
+        echo "🎯 Target bucket name: $BUCKET_NAME"
+
+      # Step 4️⃣: Check state and AWS for the main bucket
+      - echo "🔎 Checking infrastructure state..."
+      - |
+        if terraform state list | grep -q "module.main_bucket.aws_s3_bucket.main"; then
+          echo "✅ Bucket exists in state file, checking for changes..."
+          terraform plan -detailed-exitcode -var-file="terraform.tfvars" >/dev/null 2>&1
+          PLAN_STATUS=$?
+
+          case $PLAN_STATUS in
+            0)
+              echo "✅ No changes needed - infrastructure is up to date"
+              exit 0
+              ;;
+            1)
+              echo "❌ Error running plan"
+              exit 1
+              ;;
+            2)
+              echo "🔄 Changes detected in existing bucket, proceeding with update..."
+              terraform plan -out=tfplan -var-file="terraform.tfvars"
+              terraform apply -auto-approve tfplan
+              ;;
+          esac
+        else
+          echo "🚨 Bucket not found in state file, checking in AWS..."
+          if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+            echo "⚠️ Warning: Bucket '$BUCKET_NAME' exists in AWS but not in state!"
+            echo "ℹ️ Suggestion: Either import it or use a different name."
+            echo "👉 Import: terraform import module.main_bucket.aws_s3_bucket.main $BUCKET_NAME"
+            exit 1
+          else
+            echo "🆕 Bucket doesn't exist anywhere, creating new..."
+            terraform plan -out=tfplan -var-file="terraform.tfvars"
+            terraform apply -auto-approve tfplan
+          fi
+        fi
+
+        # - echo "✅ Infrastructure deployed successfully!"
+        # - echo :sleep for 60 seconds before destroying...
+        # - sleep 60
+        # # Destroy the infrastructure
+        # - echo "🚮 Destroying infrastructure...
+        # - terraform destroy -auto-approve -var-file="terraform.tfvars"
+        # - echo "✅ Infrastructure destroyed successfully!"
+
+# artifacts:
+#   files:
+#     - '**/*'
