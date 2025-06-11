@@ -1,64 +1,91 @@
 # AWS S3 Bucket Terraform Automation
 
-This task provisions an AWS S3 bucket using Terraform, following best practices for security, compliance, and maintainability.
+This project provisions AWS S3 buckets using Terraform with a modular approach, following best practices for security, compliance, and maintainability.
 
 ## Features
 
-- **S3 Bucket Creation** with a globally unique name
-- **Region:** Mumbai (`ap-south-1`)
-- **Versioning:** Enabled, with optional MFA delete
-- **Encryption:** Server-side encryption (AES256)
-- **Public Access Block:** Prevents accidental public exposure
-- **Object Lock:** Configurable retention mode and period
-- **Tags:** For cost allocation, ownership, and environment tracking
+- **Modular Design** for reusable infrastructure components
+- **State Management** with remote state storage in S3
+- **S3 Bucket Creation** with globally unique names
+- **Security Features:**
+  - Server-side encryption (AES256)
+  - Public access blocking
+  - Versioning with optional MFA delete
+  - Object Lock capabilities
+- **Resource Tagging** for cost allocation and management
+- **CI/CD Integration** via AWS CodeBuild
 
-## Folder Structure
+## Directory Structure
 
 ```
 AWS-terraform/
-├── S3/
-│   ├── main.tf
-│   ├── variables.tf
-│   ├── terraform.tfvars
-│   ├── provider.tf
-│   ├── output.tf
+├── modules/
+│   ├── s3/
+│   │   ├── main.tf           # S3 bucket resource definitions
+│   │   ├── variables.tf      # Input variables for S3 module
+│   │   └── outputs.tf        # Output values from S3 module
+│   │
+│   └── state-backend/
+│       ├── main.tf           # State bucket resource definitions
+│       ├── variables.tf      # Input variables for state backend
+│       └── outputs.tf        # Output values from state backend
+│
+├── main.tf                   # Root configuration file
+├── variables.tf              # Root variables
+├── terraform.tfvars         # Variable values
+├── provider.tf              # AWS provider configuration
+├── backend.tf              # Backend configuration
+│
 ├── pipeline/
-│   └── test.yml
+│   └── buildspec.yml        # AWS CodeBuild pipeline configuration
+│
 ├── .gitignore
 └── README.md
 ```
 
-## How to Use
+## Prerequisites
+
+- AWS CLI configured
+- Terraform (version 1.12.1 or later)
+- AWS Account with appropriate permissions
+
+## Usage
 
 1. **Clone the repository:**
    ```sh
    git clone https://github.com/akashsingh60/AWS-terraform.git
-   cd AWS-terraform/S3
+   cd AWS-terraform
    ```
 
-2. **Configure AWS CLI:**
-   ```sh
-   aws configure
-   ```
-
-3. **Initialize Terraform:**
+2. **Initialize Terraform:**
    ```sh
    terraform init
    ```
 
-4. **Validate the configuration:**
-   ```sh
-   terraform validate
-   ```
+## CI/CD Pipeline
 
-5. **Review the execution plan:**
-   ```sh
-   terraform plan -var-file="terraform.tfvars"
-   ```
+The project includes an AWS CodeBuild pipeline that:
+- Creates/checks state bucket
+- Validates Terraform configurations
+- Manages S3 bucket creation/updates
+- Implements proper state management
+- Includes safety checks and validations
 
-6. **Apply the configuration:**
-   ```sh
-   terraform apply -var-file="terraform.tfvars"
-   ```
+To use the pipeline:
+1. Configure AWS CodeBuild project
+2. Connect to your repository
+3. Use the provided `buildspec.yml`
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 

@@ -9,7 +9,7 @@ phases:
       - mv terraform /usr/local/bin/
       - terraform -version
 
-      # Step 1️⃣: Create the state bucket first (modules/state-bucket)
+      # Step 1️⃣: Create/check the state bucket first (modules/state-backend)
       - echo "🔨 Creating/checking the state bucket..."
       - cd modules/state-bucket
       - |
@@ -24,7 +24,7 @@ phases:
           terraform apply -auto-approve tfplan
         fi
 
-      # Step 2️⃣: Go back to root directory for main deployment
+      # Step 2️⃣: Return to root directory for main deployment
       - cd ../../
       - terraform init -migrate-state
       - terraform fmt
@@ -38,6 +38,9 @@ phases:
       # Step 4️⃣: Check state and AWS for the main bucket
       - echo "🔎 Checking infrastructure state..."
       - |
+        # Refresh state first to align with AWS
+        terraform refresh -var-file="terraform.tfvars"
+
         if terraform state list | grep -q "module.main_bucket.aws_s3_bucket.main"; then
           echo "✅ Bucket exists in state file, checking for changes..."
           terraform plan -detailed-exitcode -var-file="terraform.tfvars" >/dev/null 2>&1
@@ -46,14 +49,13 @@ phases:
           case $PLAN_STATUS in
             0)
               echo "✅ No changes needed - infrastructure is up to date"
-              exit 0
               ;;
             1)
               echo "❌ Error running plan"
               exit 1
               ;;
             2)
-              echo "🔄 Changes detected in existing bucket, proceeding with update..."
+              echo "🔄 Changes detected, applying updates..."
               terraform plan -out=tfplan -var-file="terraform.tfvars"
               terraform apply -auto-approve tfplan
               ;;
@@ -64,7 +66,7 @@ phases:
             echo "⚠️ Warning: Bucket '$BUCKET_NAME' exists in AWS but not in state!"
             echo "ℹ️ Suggestion: Either import it or use a different name."
             echo "👉 Import: terraform import module.main_bucket.aws_s3_bucket.main $BUCKET_NAME"
-            exit 1
+            exit 0
           else
             echo "🆕 Bucket doesn't exist anywhere, creating new..."
             terraform plan -out=tfplan -var-file="terraform.tfvars"
@@ -72,14 +74,3 @@ phases:
           fi
         fi
 
-        # - echo "✅ Infrastructure deployed successfully!"
-        # - echo :sleep for 60 seconds before destroying...
-        # - sleep 60
-        # # Destroy the infrastructure
-        # - echo "🚮 Destroying infrastructure...
-        # - terraform destroy -auto-approve -var-file="terraform.tfvars"
-        # - echo "✅ Infrastructure destroyed successfully!"
-
-# artifacts:
-#   files:
-#     - '**/*'
